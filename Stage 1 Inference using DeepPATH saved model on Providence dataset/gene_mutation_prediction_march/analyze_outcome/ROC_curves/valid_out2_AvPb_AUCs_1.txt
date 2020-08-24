@@ -1,0 +1,1 @@
+/nfs/home/xwang/gene mutation prediction March/analyze outcome/ROC curves/out2 roc data AvPb c1auc nan CIs 0.0000 0.0000 t0.000000

@@ -1,0 +1,50 @@
+Jan 10 2020 (Friday)
+
+- LUAD patients KRAS mutation results are generated as csv file. With columns named unique_patientIDs and KRAS_mutation. This result csv serves as the ground truth for later prediction part using image dataset. 
+
+- We are only consider LUAD patients at this moment. 517 patients in total. 
+
+- Image dataset folder path:
+	/nfs6/providence/Images_pyramid_renamed/
+
+- DeepPath Code 
+	https://github.com/ncoudray/DeepPATH
+
+
+Todo:
+1. Replicating the process of predicting gene mutation status based on image input only. -> Later todo
+	=> Focusing on the LUAD slides and test whether CNNs can be trained to predict gene mutatations using images as the only input. 
+	=> To make sure the training and test sets contain enough images from the mutated genes, we only selected those which were mutated in at least 10% of the available tumors. ???
+	=> From each LUAD slide, only tiles classified as LUAD by our classification model were used this task in order to avoid biasing the network to learn LUAD-specific vs. LUSC-specific mutations and to focus instead on distinguish mutations relying exclusively on LUAD tiles. ?? ------> We assume the whole slide is all belong to LUAD in this case.
+	=> Inception V3 was modified to allow multioutput classification: training and validation was conducted on ~ 212,000 tiles from ~ 320 slides, and testing was performed on ~ 44,000 tiles form 62 slides. 
+
+
+2. What is the % for training, validation and test set separation? - DONE. 
+	- 70% tiles for training, 15% for validation and 15% for testing. 
+
+
+3. Before going to the third stage of gene mutation prediction based on image, we decide to first use their model (from paper) for performance checking. Using LUAD patients image only to inference, classification output whether this image is belong to LUAD.? tumors. 
+
+
+4. Look through DeepPath Code to figure out how their process look like. 
+
+
+5. Understand how to handle with image data in Python, for example, read in file, visualize it, different file format. 
+
+
+6. Understand Google Inception V3 CNN model architecture. 
+	- https://github.com/tensorflow/models/tree/master/research/inception
+
+
+7. Note the folder path for generating and storing image dataset (JPG) from TIFF on company's server. - DONE. 
+	- the DeepPath models we received in '/nfs6/deeppath_models' 
+	- a scratch folder for you to save any data you need to generated in '/nfs6/deeppath_scratch'
+
+
+8. For our patient dataset, only 20% of them have KRAS mutation, when we do the gene mutation part, small positive mutation % will influence the result. How to seperate the class properly? (how many positive in training, etc. )
+
+
+
+
+
+

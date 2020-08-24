@@ -1,0 +1,276 @@
+# the models are load from the checkpoint parameters, check the github repo for documentations. 
+
+# for the previous processing steps, just clone the github to my own directory. In order to run it. 
+
+	- github repo cloned to this path: /nfs/home/xwang/DeepPATH/DeepPATH_code
+
+	- pre-processing scripts folder: 
+		/nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing
+
+
+
+ =====   0.1 Tile the svs slide images ============================================
+ /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py
+
+ Example scripts to submit on cluster:
+''''
+	#!/bin/tcsh
+	#$ -pe openmpi 32
+	#$ -A TensorFlow
+	#$ -N rqsub_tile
+	#$ -cwd
+	#$ -S /bin/tcsh
+	#$ -q gpu0.q
+	#$ -l excl=true
+
+	python /path_to/0b_tileLoop_deepzoom4.py  -s 299 -e 0 -j 32 -B 25 -o <full_path_to_output_folder> "full_path_to_input_slides/*/*svs"
+'''
+-------
+	#!/bin/tcsh
+		This defines what shell (command interpreter) you are using for interpreting/running your script. Each shell is slightly different in the way it interacts with the user and executes scripts (programs).
+
+		When you type in a command at the Unix prompt, you are interacting with the shell.
+
+		E.g., #!/bin/csh refers to the C-shell, /bin/tcsh the t-shell, /bin/bash the bash shell, etc.
+
+-----------------------------
+(6 mandatory parameters)
+ 		- 0b_tileLoop_deepzoom4.py should now be working on dcm and jpg files. 
+ 		- In this case, the mask can also be jpg instead xml files and "-x" would point to the directory where those masks are saved. 
+ 		- Mask must have exactly the same basename as the original images and end in "mask.jpg".
+ 		- To see the list of images that failed to be tiled (usually because the file is corrupted), search for the work "Failed" in the output log file. 
+
+- Mandatory parameters:(6)
+
+  -s is tile_size: 299 (299x299 pixel tiles)
+
+  -e is overlap, 0 (no overlap between adjacent tiles).
+  					Important: the overlap is defined as "the number of extra pixels to add to each interior edge of a tile". Which means that the final tile size is s+2.e . ????
+  						So to get a 299px tile with a 50% overlap, you need to set s to 149 and e to 75. Also tile from the edges of the slide will be smaller (since up to two sides have no "interior" edge). ???
+
+  - j is number of threads: 32 (for a full GPU node on gpu0.q).
+
+  - B is Max Percentage of Background allowed: 25% (tiles removed if background percentage above this value). 
+  			We will change this parameter as we test the models to see the effect. 
+
+  - o is the path were the output images must be saved. 
+  			'/nfs6/deeppath_scratch/'
+
+  - The final mandatory parameter is the path to all svs images. 
+  			'/nfs6/providence/Images_pyramid_renamed/'
+
+  			Optional parameters when regions have been selected with Aperio:
+  				-x, -m, -R, -l, -S, -M, -N 
+
+ * Notes:
+ 	- This code can also be used to tile input jgp images: the full path to input image end in <*jpg">, and you need to set the option -x to the ".jpg" string value and -R to the magnification at which the images were acquired (20.0 for example). 
+
+ 	- Knowns bug: the library used fails to deal with images compressed as JPG 2000. These shuold lead to empty directories. 
+
+
+ * Output: 
+ 	- Each slide will have its own folder and inside, one sub-folder per magnification. Inside each magnification folder, tiles are named according to their position within the slide: <x>_<y>.jpeg.
+
+ 	- If the extraction is made from masks defined in xml files, the tiles slides will be saved in folders named after the label of the layer (version 3 of the code only).
+
+
+--------------
+	-Github ducumentation, they indicated 299x299 pixels as optimal tile size for input.
+		But in the paper, they wrote: "The slides were tiled in non-overlapping 512x512 pixel windows at a magnification of x20 using the openslide library."
+	-Github documentation, they used 25% as max % of background allowed. 
+		But in the paper, they wrote: "The slides with a low amount of information were removed, that is all the tiles where more than 50% of the surface is covered by background (where all the values are below 220 in the RGB color space). "
+	- "All tiles generated from the same patient should be assigned to the same set."
+
+	- "Image are first tiled, then sorted according to chosen labels. There will be one folder per label."
+
+--------------
+	- In the TIF image folder, there are 1160 images in total. 
+		I only need 550 image files of them. 
+		So I need to select specific files in the image folder for preprocess step.
+
+        	Use ** ln -s target_path link_path ** command to create virtual link? [copying the files you need without actually moving all the files in physical space.] -> Symlink to a single file/directory
+        		- target_path is the relative or absolute path to which the symbolic link should point. Usually the target will exist, although symbolic links may be created to non-existent targets. link_path is the path of the symbolic link.
+
+     1. need to create symlink from the original image folder to my own space, and filter only the files I need before using their pre-process scripts to tile the images.  -DONE. 
+
+     - Create simple test case and trail for it before apply it on the real cluster folder. -DONE.
+
+     2. create symbolic link and then figure out how to select specific files from the symbolic link.  -DONE. 
+
+
+- Whole slide imaging (WSI): http://dicom.nema.org/Dicom/DICOMWSI/
+- du --max-depth=1 -h
+- du -sh .
+- ls -lh
+
+ ===================================================================================
+
+# /path_to/0b_tileLoop_deepzoom4.py:  (PREPROCESSING SCRIPT)
+#       =>    /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py
+
+#  Preprocess results will be stored in the folder path:  (OUTPUT)
+#       =>    /nfs6/deeppath_scratch/
+
+#  DeepPath models: (MODEL)
+#       =>    /nfs6/deeppath_models/
+
+#  Symlink to Image files: (INPUT)
+#       =>    /nfs/home/xwang/Symlink_image/
+
+#+==================------------------------------------------
+ModuleNotFoundError: No module named 'openslide'
+	- pip install openslide-python
+ModuleNotFoundError: No module named 'dicom'
+
+
+(3.7.5) -bash-4.2$ ./01_TileSlideImages.sh 
+./01_TileSlideImages.sh: line 1: !/bin/tcsh: No such file or directory
+./01_TileSlideImages.sh: line 2: $: command not found
+./01_TileSlideImages.sh: line 3: $: command not found
+./01_TileSlideImages.sh: line 4: $: command not found
+./01_TileSlideImages.sh: line 5: $: command not found
+./01_TileSlideImages.sh: line 6: $: command not found
+./01_TileSlideImages.sh: line 7: $: command not found
+./01_TileSlideImages.sh: line 8: $: command not found
+/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/dicom/__init__.py:53: UserWarning: 
+This code is using an older version of pydicom, which is no longer 
+maintained as of Jan 2017.  You can access the new pydicom features and API 
+by installing `pydicom` from PyPI.
+See 'Transitioning to pydicom 1.x' section at pydicom.readthedocs.org 
+for more information.
+
+  warnings.warn(msg)
+Traceback (most recent call last):
+  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py", line 36, in <module>
+    from scipy.misc import imsave
+ImportError: cannot import name 'imsave' from 'scipy.misc' (/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/scipy/misc/__init__.py)
+
+
+
+/bin/tcsh: bad interpreter: No such file or directory
+
+
+#=========================
+using:
+	python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py  -s 299 -e 0 -j 32 -B 25 -o /nfs6/deeppath_scratch/ /nfs/home/xwang/Symlink_image/*/*tif
+
+get:
+/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/dicom/__init__.py:53: UserWarning: 
+This code is using an older version of pydicom, which is no longer 
+maintained as of Jan 2017.  You can access the new pydicom features and API 
+by installing `pydicom` from PyPI.
+See 'Transitioning to pydicom 1.x' section at pydicom.readthedocs.org 
+for more information.
+
+  warnings.warn(msg)
+Traceback (most recent call last):
+  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py", line 36, in <module>
+    from scipy.misc import imsave
+ImportError: cannot import name 'imsave' from 'scipy.misc' (/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/scipy/misc/__init__.py)
+
+
+pip install 'scipy<1.3.0'
+
+
+#=========================
+ /nfs6/deeppath_scratch/ "/nfs/home/xwang/Symlink_image/*/*tif"
+/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/dicom/__init__.py:53: UserWarning: 
+This code is using an older version of pydicom, which is no longer 
+maintained as of Jan 2017.  You can access the new pydicom features and API 
+by installing `pydicom` from PyPI.
+See 'Transitioning to pydicom 1.x' section at pydicom.readthedocs.org 
+for more information.
+
+  warnings.warn(msg)
+Traceback (most recent call last):
+  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py", line 42, in <module>
+    from skimage import color, io
+ModuleNotFoundError: No module named 'skimage'
+
+
+pip install scikit-image
+
+
+#===========================================================================
+(3.7.5) -bash-4.2$ python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py  -s 299 -e 0 -j 32 -B 25 -o /nfs6/deeppath_scratch/ "/nfs/home/xwang/Symlink_image/*/*tif"
+
+/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/dicom/__init__.py:53: UserWarning: 
+This code is using an older version of pydicom, which is no longer 
+maintained as of Jan 2017.  You can access the new pydicom features and API 
+by installing `pydicom` from PyPI.
+See 'Transitioning to pydicom 1.x' section at pydicom.readthedocs.org 
+for more information.
+
+  warnings.warn(msg)
+End
+
+
+
+Change: 
+	go to 0b_tileLoop_deepzoom4.py, changing import dicom to import pydicom
+
+
+#======
+(3.7.5) -bash-4.2$ python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py  -s 299 -e 0 -j 32 -B 25 -o /nfs6/deeppath_scratch/ /nfs/home/xwang/Symlink_image/*/*tif
+
+End
+
+#======
+
+(3.7.5) -bash-4.2$ python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py  -s 299 -e 0 -j 32 -B 25 -o /nfs6/deeppath_scratch/ /nfs/home/xwang/Symlink_image/*
+
+processing: 0x008AA255A3EF6E54E308C9B6728F9D7D60D71428A2DDD339DD6A7956DFB73B90_1x7HNHG5JNCA with extension: /nfs/home/xwang/Symlink_image/0x008AA255A3EF6E54E308C9B6728F9D7D60D71428A2DDD339DD6A7956DFB73B90_1x7HNHG5JNCA.tif
+/nfs6/deeppath_scratch/0x008AA255A3EF6E54E308C9B6728F9D7D60D71428A2DDD339DD6A7956DFB73B90_1x7HNHG5JNCA - No Obj information found
+/nfs/home/xwang/Symlink_image/0x008AA255A3EF6E54E308C9B6728F9D7D60D71428A2DDD339DD6A7956DFB73B90_1x7HNHG5JNCA.tif
+input is jpg - will be tiled as such with 1.000000
+Tiling slide: wrote 1560/1560 tiles
+End
+
+
+#=========
+	# changed the original code, the Objection parameter to be 20. 
+
+	# Rename TIF to SVS to see whether the Python script is detecting it, otherwise, we may need to generate XML file. -DONE renaming. 
+
+
+#=========
+ 	I uncommented their code to print all the filenames, but when I did it in their way, nothing come out. 
+ 	When I do 
+ 			python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py  -s 299 -e 0 -j 32 -B 25 -o /nfs6/deeppath_scratch/ /nfs/home/xwang/Symlink_image/*
+ 		Only one file name printed. 
+
+ 	Thus, -> I will just write bash script to get all files in the directory and pass each file into the command line as the parameter of the program. 
+
+
+#=======
+0x2283ACF3FB1094ED10137C062ACCA48B416C0D175B97C5B64AEABB86AA2AEE22_1xEP2458MYZ1 with extension: /nfs/home/xwang/Symlink_image/0x2283ACF3FB1094ED10137C062ACCA48B416C0D175B97C5B64AEABB86AA2AEE22_1xEP2458MYZ1.svs
+
+python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py  -s 299 -e 0 -j 32 -B 25 -o /nfs6/deeppath_scratch/ /nfs/home/xwang/Symlink_image/0x2283ACF3FB1094ED10137C062ACCA48B416C0D175B97C5B64AEABB86AA2AEE22_1xEP2458MYZ1.svs
+
+
+#===============================================================
+(3.7.5) -bash-4.2$ cd /nfs6/deeppath_scratch/
+(3.7.5) -bash-4.2$ ls -l |wc
+   1099    9884  143850
+
+(3.7.5) -bash-4.2$ cd Symlink_image/
+(3.7.5) -bash-4.2$ ls -l |wc
+    551    6050  142810
+
+# =========
+ * There are 550 images in the directory,
+ * by running the bash script "01_tile.sh", 
+ * only returns 1099 files. 
+ 	=> this means one image only got 1 output file. WHY???
+ 			- figure out which one
+
+Now, finished "0.1: Tile the svs slide images". 
+	=> what is the size of output directory?  - 74GB. 
+		- the size for original image folder: 4.7MB. 
+
+
+Next, "0.2: Sort the tiles into train/valid/test sets according to the classes defined".
+
+
+# ===================================
+# END

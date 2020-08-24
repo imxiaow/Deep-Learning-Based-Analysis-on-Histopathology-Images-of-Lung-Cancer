@@ -1,0 +1,12 @@
+local: ssh xwang@50.45.178.154 -L 8888:oda-compute-0-9:8888
+ssh <username>@50.45.178.154 -L <port>:oda-compute-0-9:<port>
+
+server: hostname -i
+jupyter lab --no-browser --ip 192.168.11.234
+
+copy the portnumber, 
+then, use the URL 
+
+50.78.178.218
+
+ssh xwang@50.78.178.218 -L 8888:oda-compute-0-9:8888

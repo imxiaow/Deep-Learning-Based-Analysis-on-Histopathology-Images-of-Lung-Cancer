@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["--checkpoint_dir", "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/", "--eval_dir","/nfs/home/xwang/2_testset_model_1a_eval_TF1/", "--data_dir","/nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/", "--batch_size","30", "--ImageSet_basename","test_", "--run_once", "--ClassNumber", "3", "--mode", "0_softmax", "--TVmode","test"]
+        }
+    ]
+}

@@ -1,0 +1,83 @@
+# LUAD_Patients_KRAS_mutation.csv
+# - LUAD patients with KRAS mutations, patient ids and mutation status are recorded in the csv file. 
+# - The patients IDs are those who have both image data and vcf files. 
+# - Only unique IDs are inside this csv file. (517 in total)
+
+# Tasks:
+#    1. Use csv file, the patients ID to get all the image data files. 
+#           - Get the the statistics of it. How many of them in total?
+#           - Because one patient ID may have multiple Image data.  => Multiple images from the same patient will be kept in the same set.
+#           - Record the Image filenames that will be used for model. 
+
+#    2. Use the filenames from previous step as input, break the whole slide image into tiles / preprocess steps. 
+#           - Preprocess results will be stored in the folder path: '/nfs6/deeppath_scratch'
+
+#    3. Split the dataset into train, validating and testing.
+#           -  70% tiles for trainning, 15% tiles for validating and 15% for testing. 
+#           => Multiple images from the same patient will be kept in the same set.
+              
+#    4. Figuring out image data handling, file formats in Python, Visualizations. 
+#          E.g. Read in, write out,. 
+#              - File formats: SVS, TIFF, JP2, and JFIF. (SVS files are really TIFF files.)
+#              - Compression types: JPEG, JPEG2000, and LZW. 
+#              - Some file formats only support one compression type. 
+#                    - JP2 files always use JPEG2000 compression, and JFIF files always use JPEG compression. (For this reason, JP2 files are sometimes called “JPEG2000 files”, and JFIF files are often called “JPEG files”.) 
+#                    - The SVS/TIFF file format supports multiple compression types, including JPEG, JPEG2000, and LZW, as well as “none” (no compression).
+#                    Aperio ImageScope => 病理切片查看软件 [Leica Biosystem]
+#              - TFRecord:
+#                    - "If you are working with large datasets, using a binary file format for storage of your data can have a significant impact on the performance of your import pipeline and as a consequence on the training time of your model.  
+#                       Binary data takes up less space on disk, takes less time to copy and can be read much more efficiently from disk.
+#                       This is especially true if your data is stored on spinning disks, due to the much lower read/write performance in comparison with SSDs."
+#                    - "Especially for datasets that are too large to be stored fully in memory this is an advantage as only the data that is required at the time (e.g. a batch) is loaded from disk and then processed. 
+#                       Another major advantage of TFRecords is that it is possible to store sequence data — for instance, a time series or word encodings — in a way that allows for very efficient and (from a coding perspective) convenient import of this type of data."
+#                    - https://medium.com/mostly-ai/tensorflow-records-what-they-are-and-how-to-use-them-c46bc4bbb564
+#                    - https://juejin.im/entry/5b30af58518825749630f045
+#                    - https://zhuanlan.zhihu.com/p/33223782
+
+#              - 1024 shards and 128 shards:
+#                   https://datascience.stackexchange.com/questions/16318/what-is-the-benefit-of-splitting-tfrecord-file-into-shards
+#                   "hards are used by TFRecords to allow a user to break the dataset into "chunks" that can then be loaded in an arbitrary order such that memory can be saved when randomizing data for stochastic gradient descent based approaches." - Kevin. 
+
+#    5. The DeepPath models we received in "/nfs6/deeppath_models"
+#           - the paper used transfer learning as well as full training of the model, 
+#                do we also conduct the same? or transfer only, 
+
+# *** Now, use their model for inference, because we only have tumor samples from Providence, they do not provide normal tissue image. 
+#          We know that our dataset (Images) are all tumors (LUAD), we can test the model to see if there's abnormal results. 
+#          Run the model for inference before we use image for gene mutation prediction. 
+
+# ****************************
+# The overall process of DeepPATH is:
+#        1. Tile the SVS / TIFF images and convert into jpg. 
+#        2. Sort the jpg images into train/valid/test at a given magnification and put them in appropriate classess. 
+#        3. Convert each of the sets into TFRecord format. 
+#        4. Run training and validation. 
+#        5. Run testing. 
+#        6. Run ROC curve and heatmap. 
+
+#   "Optimal input size for inception is 299x299 pixels but the network has been designed to deal with variable image sizes."
+#   "All tiles generated from the same patient should be assigned to the same set."
+
+
+
+
+
+# ===== Task 2: ===============================================================================================
+#    Use the Image filenames from Task 1 as input, break the whole slide image into tiles 
+#        =>  Pre-processing step in DeepPath.
+#        =>  Pre-process results will be stored in the folder path: '/nfs6/deeppath_scratch'
+#   
+#     => "Optimal input size for inception is 299x299 pixels but the network has been designed to deal with variable image sizes."
+#     => "All tiles generated from the same patient should be assigned to the same set."
+#     => Image are first tiled, then sorted according to chosen labels. There will be one folder per label. 
+#     => Tiles will be sorted into a train, test, validation set. 
+#     => Finally, the jpg images are converted into TFRecords. 
+#           => For the train and validation set, there will be randomly assigned to 1024 and 128 shard respectively. ?
+#                 - https://datascience.stackexchange.com/questions/16318/what-is-the-benefit-of-splitting-tfrecord-file-into-shards
+#           => For the test set, there will be 1 TFRecord per slide. ?
+
+
+# Have to select specific files in the image folder for preprocessing steps. 
+#     - use ln -s target command => create virtual link?
+
+

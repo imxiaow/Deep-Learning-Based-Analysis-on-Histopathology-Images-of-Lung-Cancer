@@ -1,0 +1,30 @@
+export CHECKPOINT_PATH=/nfs/home/xwang/Transfer_Learning_April/model_1a/train_model_1a
+export OUTPUT_DIR=/nfs/home/xwang/Transfer_Learning_April/r2_result
+export DATA_DIR=/nfs/home/xwang/Transfer_Learning_April/r2_TFRecord_test
+export LABEL_FILE=/nfs/home/xwang/label_names.txt
+
+# Best checkpoints
+declare -i count=3210 
+declare -i NbClasses=3
+
+# create temporary directory for checkpoints
+mkdir  -p $OUTPUT_DIR/tmp_checkpoints
+export CUR_CHECKPOINT=$OUTPUT_DIR/tmp_checkpoints
+
+export TEST_OUTPUT=$OUTPUT_DIR/test_$count'k'
+mkdir -p $TEST_OUTPUT
+			
+ln -s $CHECKPOINT_PATH/*-$count.* $CUR_CHECKPOINT/.
+touch $CUR_CHECKPOINT/checkpoint
+echo 'model_checkpoint_path: "'$CUR_CHECKPOINT'/model.ckpt-'$count'"' > $CUR_CHECKPOINT/checkpoint
+echo 'all_model_checkpoint_paths: "'$CUR_CHECKPOINT'/model.ckpt-'$count'"' >> $CUR_CHECKPOINT/checkpoint
+
+# Test
+python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=$CUR_CHECKPOINT --eval_dir=$OUTPUT_DIR --data_dir=$DATA_DIR  --batch_size 300  --run_once --ImageSet_basename='test_' --ClassNumber $NbClasses --mode='0_softmax'  --TVmode='test'
+			# wait
+
+mv $OUTPUT_DIR/out* $TEST_OUTPUT/.
+
+
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats=/nfs/home/xwang/Transfer_Learning_April/r2_result/test_3210k/out_filename_Stats.txt  --output_dir=/nfs/home/xwang/Transfer_Learning_April/r2_result/test_3210k/ --labels_names=/nfs/home/xwang/label_names.txt

@@ -1,0 +1,76 @@
+Jan 08/ 2020
+
+- Patient diagnosis information (Cancer Types):
+/nfs6/providence_raw/alexa_info/EHR_ALL_Patient_Diagnosis.tsv
+
+	- Cancer types:
+	/nfs6/providence_raw/alexa_info/masterList_ImageID_cancerType.tsv
+
+
+- Images: 
+/nfs6/providence/Images_pyramid_renamed/
+	- .tif format
+	- what's .msi ?
+	- HN_control_msi?
+	1170 .tif files in total 
+	- 13 
+	= 1157 
+
+- VCFs:
+/nfs6/providence/vcf_all_cleaned/
+	- ##fileformat=VCFv4.1
+	- each (same file name/ patientID) have 2 different vcf files, one called sorted_clean; one with only sort. 
+	( ls | grep .vcf |wc -l
+	2460 vcf files in total )
+	2460/2 = 1230. 
+
+
+- DeepPath Code 
+https://github.com/ncoudray/DeepPATH
+
+
+Tasks:
+1. Figure out how to check if specific gene is mutated in VCF files. - DONE. 
+(only check the files with correct name / - 583 LUAD/1154; WITH only clean sort VCF.)
+	- http://alimanfoo.github.io/2017/06/14/read-vcf.html
+	- KRAS position: Chr 12, 25205246 - 25250936 (Reverse Strand)
+		- Just read in VCF and check if there's variants inside the range of KRAS genes. And Does "reverse strand" matters?
+
+2. Generate scripts to do task one for all VCF files, with output of patientID (filename). - DONE. 
+
+3. Analysis the percentage of portions of KRAS mutation in avaliable dataset. -DONE. 		~ 20% 
+
+4. Now, we have the ground truth of all patients gene mutation information for KRAS, we can then Replicate the process of predicting gene mutation status based on image input only. 
+
+- Get the overall distribution of cancer types of all patients. - DONE. 
+- check, patients ID in both VCF and images. - DONE. (1154 in total)
+- overall distribution of cancer type in both dataset. - DONE. (583 LUAD out of 1154 total.) 
+
+
+Question:
+1. There are about 1000 patients' images, they are in all cancer types. 
+	- Do we need to consider lung cancer patient only at this point?
+		YES, Based on the statisitcs of overall distribution, we start from singe cancer type first, - Lung Adenocarcinoma. (598/1851). 
+		But KEEP IN MIND, we also have to check how many patients from LUAD have image and VCF. (another way saying is the patient cancer type distribution in VCF and LUAD.)
+		- Maybe first check, patients in both VCF and images. - DONE. 
+
+	- And for training, validation, test set separation, are we only using Lung cancer patient? what's the % for separation?
+
+2. There are two VCF for the same file name, one is clean, one is sorted clean. They contain different information (columns). - DONE. USE the clean sort one. 
+
+3. Only cancer patients dataset, no normal tissue when classification later. 
+
+
+#===========
+- For # of IDs in “/nfs6/providence_raw/alexa_info/EHR_ALL_Patient_Diagnosis.tsv”, there are 1851.
+- And for # of IDs in “/nfs6/providence_raw/alexa_info/masterList_ImageID_cancerType.tsv”, there are 714.
+- And when I check the # of files in imaging folder “/nfs6/providence/Images_pyramid_renamed/“, there are 1157 .tif files. This may because one patient have more than one image with different accession number?
+
+- For the VCF folder, there are 2460 VCF files. Each patientID have TWO different VCF files, one named with sorted clean, one named with only sort. (Two VCF files contain different columns)
+If i divide this number by 2, then there’s 1230 patients for VCF.
+#---------
+So basically, not every patient have VCF and not every patient have images. One patient may have more than one image in our dataset. 
+#===========
+
+
+

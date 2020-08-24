@@ -1,0 +1,80 @@
+export CHECKPOINT_PATH=/nfs/home/xwang/Transfer_Learning_April/model_1b/transfer_learning_model1b_2CLass/
+export OUTPUT_DIR=/nfs/home/xwang/Transfer_Learning_April/model_1b/valid_model1b_2CLass
+export DATA_DIR=/nfs/home/xwang/Transfer_Learning_April/model_1b/r3_2class_TFRecord_valid
+export LABEL_FILE=/nfs/home/xwang/Transfer_Learning_April/model_1b/labelref_r3_2class.txt
+
+# create temporary directory for checkpoints
+mkdir  -p $OUTPUT_DIR/tmp_checkpoints
+export CUR_CHECKPOINT=$OUTPUT_DIR/tmp_checkpoints
+
+
+# check if next checkpoint available
+declare -i count=1069
+declare -i step=1069
+declare -i NbClasses=2
+
+while true; do
+        echo $count
+        if [ -f $CHECKPOINT_PATH/model.ckpt-$count.meta ]; then
+                echo $CHECKPOINT_PATH/model.ckpt-$count.meta " exists"
+                # check if there's already a computation for this checkpoinmt
+                export TEST_OUTPUT=$OUTPUT_DIR/test_$count'k'
+                if [ ! -d $TEST_OUTPUT ]; then
+                        mkdir -p $TEST_OUTPUT
+
+
+                        ln -s $CHECKPOINT_PATH/*-$count.* $CUR_CHECKPOINT/.
+                        touch $CUR_CHECKPOINT/checkpoint
+                        echo 'model_checkpoint_path: "'$CUR_CHECKPOINT'/model.ckpt-'$count'"' > $CUR_CHECKPOINT/checkpoint
+                        echo 'all_model_checkpoint_paths: "'$CUR_CHECKPOINT'/model.ckpt-'$count'"' >> $CUR_CHECKPOINT/checkpoint
+
+                        # Test
+                        nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=$CUR_CHECKPOINT --eval_dir=$OUTPUT_DIR --data_dir=$DATA_DIR  --batch_size 200  --run_once --ImageSet_basename='valid_' --ClassNumber $NbClasses --mode='1_sigmoid'  --TVmode='test'
+                        # wait
+
+                        mv $OUTPUT_DIR/out* $TEST_OUTPUT/.
+
+                        # ROC
+                        export OUTFILENAME=$TEST_OUTPUT/out_filename_Stats.txt
+                        nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats=$OUTFILENAME  --output_dir=$TEST_OUTPUT --labels_names=$LABEL_FILE
+
+                else
+                        echo 'checkpoint '$TEST_OUTPUT' skipped'
+                fi
+
+        else
+                echo $CHECKPOINT_PATH/model.ckpt-$count.meta " does not exist"
+                break
+        fi
+
+        # next checkpoint
+        count=`expr "$count" + "$step"`
+done
+
+# summarize all AUC per slide (average probability) for class 1: 
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c1a*  | sed -e 's/k\/out2_roc_data_AvPb_c1a/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_1.txt
+
+
+# summarize all AUC per slide (average probability) for macro average: 
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_macro*  | sed -e 's/k\/out2_roc_data_AvPb_macro_/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_macro.txt
+
+# summarize all AUC per slide (average probability) for micro average: 
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_micro*  | sed -e 's/k\/out2_roc_data_AvPb_micro_/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_micro.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c2*  | sed -e 's/k\/out2_roc_data_AvPb_c2/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_2.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c3*  | sed -e 's/k\/out2_roc_data_AvPb_c3/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_3.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c4*  | sed -e 's/k\/out2_roc_data_AvPb_c4/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_4.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c5*  | sed -e 's/k\/out2_roc_data_AvPb_c5/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_5.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c6*  | sed -e 's/k\/out2_roc_data_AvPb_c6/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_6.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c7*  | sed -e 's/k\/out2_roc_data_AvPb_c7/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_7.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c8*  | sed -e 's/k\/out2_roc_data_AvPb_c8/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_8.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c9*  | sed -e 's/k\/out2_roc_data_AvPb_c9/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_9.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c10*  | sed -e 's/k\/out2_roc_data_AvPb_c10/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_10.txt

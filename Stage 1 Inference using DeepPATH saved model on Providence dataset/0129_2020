@@ -1,0 +1,40 @@
+* ---------------------------------------
+Task:
+	1. Creat text file.  --> DONE. 
+ 		First column is ID, second is the labels file with example:
+ 		0x175B15F977B984EC65042C8C0F7327EB9AC622169CF6299F736861AFBBE80C5E_1x935WI4L7DP	LUAD
+		file_name	class
+
+	2. Figure out which image file only have ONE output file. --> DONE.
+		- the # files in the output directory is odd. But each image file should output TWo files. 
+		input: 550 images
+		output: 1099 files. => should be 1100,
+
+
+Jan. 24/ 2020 -XW. 
+* ---------------------------------------
+
+Jan 29th / 2020 
+
+Task 2: -DONE. 
+
+	# figure out 
+	-bash-4.2$ ls -l| grep "svs" | wc
+	    549    6039  142740
+	==> /nfs/home/xwang/Symlink_image
+
+	Matched the output files. 
+
+	-bash-4.2$ ls -l | grep "1x" | wc
+   		1098    9882  143838
+   	==> /nfs6/deeppath_scratch
+
+* -------------
+
+Task 1: -DONE. 
+	Sorting_option_JASON_FILE.txt
+
+
+Jan. 29/ 2020 -XW. 
+* --------
+# END

@@ -1,0 +1,183 @@
+Problem 1:
+  "No checkpoint file found";
+      ckpt: None
+      FLAGS.checkpoint_dir: /nfs6/deeppath_models/checkpoints/run1a_3D_classifier/
+
+  script: /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py
+
+  Inside function <def _eval_once>, What is <tf.train.get_checkpoint_state()> performing?
+
+https://www.tensorflow.org/api_docs/python/tf/train/get_checkpoint_state
+https://www.cnblogs.com/hellcat/p/6925757.html
+https://blog.csdn.net/changeforeve/article/details/80268522
+https://github.com/tensorflow/models/issues/974
+https://stackoverflow.com/questions/47572045/restoring-tensorflow-model-from-pbtxt-and-meta-files
+
+  try with:
+  # --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000
+  ==> FAILED,
+
+  also try to create the file called <checkpoint> with following content:
+    model_checkpoint_path: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+    all_model_checkpoint_paths: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+
+result:
+  never finish restoring parameters...
+  check saver.restore() function.
+
+  *-------
+  I0207 12:52:26.507480 140305695401792 saver.py:1284] Restoring parameters from /nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000
+  ERROR:tensorflow:==================================
+  Object was never used (type <class 'tensorflow.python.framework.ops.Operation'>):
+  <tf.Operation 'init' type=NoOp>
+  If you want to mark it as used call its "mark_used()" method.
+  It was originally created here:
+    File "/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/absl/app.py", line 250, in _run_main
+      sys.exit(main(argv))  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py", line 67, in main
+      precision_at_1, current_score = nc_inception_eval.evaluate(dataset)  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/inception/nc_inception_eval.py", line 428, in evaluate
+      precision_at_1, current_score = _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op, max_percent, all_filenames, filename_queue, net2048, sel_end_points, logits, labels)  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/inception/nc_inception_eval.py", line 68, in _eval_once
+      tf.initialize_all_variables()  File "/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/tensorflow_core/python/util/tf_should_use.py", line 237, in wrapped
+      error_in_function=error_in_function)
+  ==================================
+  E0207 12:52:29.499549 140305695401792 tf_should_use.py:92] ==================================
+  Object was never used (type <class 'tensorflow.python.framework.ops.Operation'>):
+  <tf.Operation 'init' type=NoOp>
+  If you want to mark it as used call its "mark_used()" method.
+  It was originally created here:
+    File "/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/absl/app.py", line 250, in _run_main
+      sys.exit(main(argv))  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py", line 67, in main
+      precision_at_1, current_score = nc_inception_eval.evaluate(dataset)  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/inception/nc_inception_eval.py", line 428, in evaluate
+      precision_at_1, current_score = _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op, max_percent, all_filenames, filename_queue, net2048, sel_end_points, logits, labels)  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/inception/nc_inception_eval.py", line 68, in _eval_once
+      tf.initialize_all_variables()  File "/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/tensorflow_core/python/util/tf_should_use.py", line 237, in wrapped
+      error_in_function=error_in_function)
+  ==================================
+
+  XXXX.TFRecord FAILED to be processed properly
+  *-------
+    added print message before "Successfully load the model..." to check.
+  RESULT:
+  nothing print out. => never finish restoring parameters...
+
+  check saver.restore() function.
+    print(saver)
+      saver: <tensorflow.python.training.saver.Saver object at 0x7f9b225353d0>
+
+
+
+====================================================================
+====================================================================
+XXXX.TFRecord FAILED to be processed properly
+==================================
+  go in </nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py>, check what causing this.
+
+
+print out the exception message to see what is the error message!
+Got:
+Unexpected error: <class 'tensorflow.python.framework.errors_impl.InvalidArgumentError'>
+Unexpected error: (<class 'tensorflow.python.framework.errors_impl.InvalidArgumentError'>, InvalidArgumentError(), <traceback object at 0x7f0f0d153410>)
+
+
+saver.restore() function have InvalidArgumentError()
+
+
+https://stackoverflow.com/questions/48186569/invalidargumenterror-in-restore-assign-requires-shapes-of-both-tensors-to-match
+
+https://github.com/tensorflow/tensorflow/issues/18640
+
+https://github.com/tensorflow/tensorflow/issues/18769
+==================================
+try with newly downloaded checkpoint files. 
+result:
+  still have invalid argument errors. 
+
+
+NOW, 
+use tensorflow 1 version, to replicate the work. 
+Result:
+
+
+
+
+use tensorflow 1 version + python2, to replicate the work. 
+Result:
+
+
+
+
+
+
+==================================
+Problem 2:
+  TFRecord =>
+      Are there Tensorflow library use to read the TFRecord?
+      We want to check if the TFRecord could link back to JPEGs (tiles).
+
+
+*-------------------------
+      03a_convertJPEGtoTFRecord output file:
+        (3.7.5) -bash-4.2$ cat nohup.out
+        2020-01-30 08:29:57.986454: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libnvinfer.so.6'; dlerror: libnvinfer.so.6: cannot open shared object file: No such file or directory
+        2020-01-30 08:29:57.986612: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libnvinfer_plugin.so.6'; dlerror: libnvinfer_plugin.so.6: cannot open shared object file: No such file or directory
+        2020-01-30 08:29:57.986634: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:30] Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+        WARNING:tensorflow:From /nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/tensorflow_core/python/compat/v2_compat.py:88: disable_resource_variables (from tensorflow.python.ops.variable_scope) is deprecated and will be removed in a future version.
+        Instructions for updating:
+        non-resource variables are not supported in the long term
+        Saving results to /nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/
+        test
+        Determining list of input files and labels from /nfs/home/xwang/02_sort_tiles/.
+        ['LUAD']
+        Found 213385 JPEG files across 1 labels inside /nfs/home/xwang/02_sort_tiles/.
+        ....
+        ....
+        2020-01-30 09:57:00.572688 [thread 0]: Wrote 98 images to /nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/test_0xFEFD85ED1685D8F0B95EE488F845A4AA4689639C59FBE4EB899B6049E78BC1E9_1xN46ZKNTGG0_1.TFRecord
+        2020-01-30 09:57:01.340569: Finished writing all 213385 images in data set.
+*-------------------------
+
+
+1. Could not load dynamic library 'libnvinfer.so.6'; dlerror: libnvinfer.so.6: cannot open shared object file: No such file or directory
+2. Could not load dynamic library 'libnvinfer_plugin.so.6'; dlerror: libnvinfer_plugin.so.6: cannot open shared object file: No such file or directory
+3. Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+4. disable_resource_variables (from tensorflow.python.ops.variable_scope) is deprecated and will be removed in a future version.
+non-resource variables are not supported in the long term
+
+
+
+(3.7.5) -bash-4.2$ python3 -m pip freeze | grep tensor
+tensorboard==2.1.0
+tensorflow==2.1.0
+tensorflow-estimator==2.1.0
+
+
+
+(3.7.5) -bash-4.2$ nvidia-smi
+Fri Feb  7 14:49:42 2020
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 440.44       Driver Version: 440.44       CUDA Version: 10.2     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  GeForce GTX 108...  Off  | 00000000:81:00.0 Off |                  N/A |
+|  0%   51C    P5    19W / 250W |      0MiB / 11178MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+
+
+https://devtalk.nvidia.com/default/topic/1069667/tensorflow-2-1-with-cuda10-2-warnings-/
+https://github.com/tensorflow/tensorflow/issues/34329
+https://github.com/tensorflow/tensorflow/issues/36201
+https://www.tensorflow.org/install/gpu
+https://devtalk.nvidia.com/default/topic/1066634/could-not-load-dynamic-library-libnvinfer-so-5-/
+
+
+
+
+
+# =============
+# END

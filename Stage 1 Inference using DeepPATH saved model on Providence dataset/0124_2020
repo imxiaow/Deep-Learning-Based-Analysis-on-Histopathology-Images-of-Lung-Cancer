@@ -1,0 +1,104 @@
+0.2: Sort the tiles into train/valid/test sets according to the classes defined.
+
+	sort the jpg images into train/valid/test at a given magnification and put them in appropriate classes. 
+
+	sort according to cancer type.
+
+* ------------------------------------------------------------------
+(script example for Phoenix):
+#!/bin/tcsh
+#$ -pe openmpi 1
+#$ -A TensorFlow
+#$ -N rqsub_sort
+#$ -cwd
+#$ -S /bin/tcsh
+#$ -q all.q
+
+python /full_path_to/0d_SortTiles.py --SourceFolder=<tiled images path> --JsonFile=<JsonFilePath> --Magnification=<Magnification To copy>  --MagDiffAllowed=<Difference Allowed on Magnification> --SortingOption=<Sorting option> --PercentTest=15 --PercentValid=15 --PatientID=12 --nSplit 0
+
+* ---------------------------------------
+/full_path_to/0d_SortTiles.py:
+	/nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py
+
+--SourceFolder=<tiled images path>
+	/nfs6/deeppath_scratch/
+
+--JsonFile=<JsonFilePath>
+	/nfs/home/xwang/Sorting_option_JASON_FILE.txt
+
+--Magnification=<Magnification To copy>
+	20
+
+--MagDiffAllowed=<Difference Allowed on Magnification>
+	If the requested magnification does not exist for a given slide, take the nearest existing magnification but only if it is at +/- the amount allowed here.
+	5
+
+--SortingOption=<Sorting option>
+ 	3  (LUSC, LUAD, or Nomal Tissue)
+ 	or 
+ 	=> 4 (LUSC, LUAD)
+ 	or 5? or 
+ 	6  cancer / Normal Tissue (2 variables)
+ 	7,8,
+ 	10 Do not sort. Just create symbolic links to all images in a single label folder and assign images to train/test/valid sets.
+ 	19?
+
+ 	** USE 14 option. 
+ 	Task:
+ 		Creat text file. 
+ 		First column is ID, second is the labels file with example:
+ 		0x175B15F977B984EC65042C8C0F7327EB9AC622169CF6299F736861AFBBE80C5E_1x935WI4L7DP	LUAD
+		file_name	class
+
+
+--PercentTest=15  (The github documentation for this is wrong, switching with PercentValid)
+	percentage of data (tiles/slides or patients depending on Balance option) for validation (example: 15);
+
+--PercentValid=15 (The github documentation for this is wrong, switching with PercentTest)
+	Percentage of data for testing (example: 15). All the other tiles will be used for training by default.
+
+--PatientID=12 ???????? first 6 or 7 å
+	Number of digits used to code the patient ID (must be the first digits of the original image names) ????????
+
+--nSplit 0
+	interger n: Split into train/test in n different ways. 
+	 	=>
+	 		If split is > 0, then the data will be split in train/test only in "# split" non-overlapping ways (each way will have 100/(#split) % of test images).
+	 	=> 
+	 		PercentTest and PercentValid will be ignored. 
+	 		If nSplit=0, then there will be one output split done according to PercentValid and PercentTest
+
+optional: 
+	--TMB
+	--outFilenameStats
+	--expLabel
+	--threshold
+	--Balance
+
+* ---------------------------------------
+* ---------------------------------------
+** The output will be generated in the current directory where the program is launched. 
+	So start it from a new empty folder. 
+	Images will not be copied but a symbolic link will be created toward the .
+
+		The links will be renamed <type>_<slide_root_name>_<x>_<y>.jpeg with being 'train_', 'test_' or 'valid_' followed by the svs name and the tile ID.
+
+
+* ---------------------------------------
+* ---------------------------------------
+Task:
+	1. Creat text file. -DONE. <Sorting_option_JASON_FILE.txt>
+ 		First column is ID, second is the labels file with example:
+ 		0x175B15F977B984EC65042C8C0F7327EB9AC622169CF6299F736861AFBBE80C5E_1x935WI4L7DP	LUAD
+		file_name	class
+
+	2. Figure out which image file only have ONE output file. -DONE. 
+		- the # files in the output directory is odd. But each image file should output TWo files. 
+		input: 550 images
+		output: 1099 files. => should be 1100,
+
+
+Jan. 24/ 2020 -XW. 
+
+# ===================================
+# END

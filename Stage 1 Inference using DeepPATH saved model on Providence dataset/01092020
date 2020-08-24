@@ -1,0 +1,28 @@
+Jan 09/ 2020
+
+- There are 1154 unique filename that both have VCF file and image file. 
+- From this 1154 unique filename, and the overall patient EHR record, there are 583 Patient IDs labeled as Lung Adenocarcinoma (LUAD), only 549 unique patient IDs. 
+
+- Using 549 unique LUAD patient IDs, there are 583 corresponding unqiue filenames in both VCF folder and Image folder. 
+	- This suggests that some patients have multiple VCF files. This is because multiple sequencing checks during their treatment. 
+	- For cases where patients with multiple VCF files, take the Union of VCF files when checking gene mutations. 
+
+
+
+chr12:25,204,789-25,250,936(GRCh38/hg38)
+Size:46,148 basesOrientation:Minus strand
+
+
+chr12:25,357,723-25,403,870(GRCh37/hg19)
+Size:46,148 basesOrientation:Minus strand
+
+# Based on the result, I think the VCF file is processed based on GRCh37/hg19 instead of (GRCh38/hg38). 
+
+
+- There are 109/544 (20%) LUAD patients have POSITIVE KRAS mutation. 
+		- 544 VCF files from 583 is actually non-empty valid VCF file. 
+		- From online resource, there are about 33% LUAD patient have KRAS mutation.
+			- matches the result. 
+
+
+- It's actually 107/517 (20%). 

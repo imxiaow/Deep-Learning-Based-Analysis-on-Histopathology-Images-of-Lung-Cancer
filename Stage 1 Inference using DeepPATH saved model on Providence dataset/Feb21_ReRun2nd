@@ -1,0 +1,289 @@
+# python 3.6 env. 
+
+# preprocess 01 step. 
+
+# break into tiles
+# Tile the images using the magnification (20x) and tile size of interest (512x512 px in this example):
+'''
+#!/usr/bin/env bash
+
+printf "$PWD \n\n"
+# list all files in the image directory:
+cd /nfs/home/xwang/Symlink_image
+printf "$PWD \n\n"
+
+
+for fentry in "$PWD"/*.svs
+do
+	printf "$fentry\n"
+	printf "checking_name\n"
+	nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0b_tileLoop_deepzoom4.py -s 512 -e 0 -j 32 -B 50 -M 20 -o /nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/ $fentry
+done
+'''
+
+'''
+pip install 'scipy<1.3.0'
+pip install scikit-image
+pip install pydicom
+go to 0b_tileLoop_deepzoom4.py, changing import dicom to import pydicom
+go to 0b_tileLoop_deepzoom4.py, changed the <Object> parameter = 20. 
+''' 
+
+#results:
+# at directory:
+#    /nfs6/deeppath_scratch/Pre_processing_2nd_Feb21
+# -bash-4.2$ ls |wc
+#   1040    1040   88400
+#
+# total: 1040 images. 
+#   for each one, only 20x magnification is contained. 
+#
+
+#-----------------
+# 0.2: Sort the tiles into train/valid/test sets according to the classes defined.
+
+#Sort the dataset into a test, train and validation cohort for a 3-way classifier (LUAD/LUSC/Normal). 
+# You need to create a new directory and run this job from that directory
+
+'''
+cd /nfs/home/xwang/ReRun_Feb21th/02_sort_tiles_ReRun
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py --SourceFolder=/nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/ --Magnification=20.0  --MagDiffAllowed=0 --SortingOption=14  --PatientID=12 --nSplit 0 --JsonFile /nfs/home/xwang/Sorting_option_JASON_FILE.txt --PercentTest=15 --PercentValid=15
+'''
+# <Sorting_option_JASON_FILE.txt>
+
+# nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py --SourceFolder /nfs6/deeppath_scratch/ --JsonFile /nfs/home/xwang/Sorting_option_JASON_FILE.txt --Magnification 20  --MagDiffAllowed 5 --SortingOption 14 --PercentTest 15 --PercentValid 15 --PatientID 8 --nSplit 0
+
+#result:
+#
+'''
+Train / Test / Validation tiles sets for LUAD = 0.698807 %  / 0.152109 % / 0.149084 %
+Train / Test / Validation slides sets for LUAD = 0.666023 %  / 0.144788 % / 0.189189 %
+Train / Test / Validation patients sets for LUAD = 0.670103 %  / 0.144330 % / 0.185567 %
+
+LUAD 612822
+
+LUAD_test 93216
+LUAD_train 428244
+LUAD_valid 91362
+
+LUAD_test 0.1521094216591441
+LUAD_train 0.6988065049883979
+LUAD_valid 0.14908407335245796
+
+LUAD 518 --> Number of images.
+LUAD_test 75
+LUAD_train 345
+LUAD_valid 98
+
+LUAD 485 --> number of patients.
+LUAD_test 70
+LUAD_train 325
+LUAD_valid 90
+'''
+#bash-4.2$ cd LUAD/
+#bash-4.2$ ls | wc
+# 612822  612822 59300030
+#/nfs/home/xwang/ReRun_Feb21th/02_sort_tiles_ReRun
+
+#-----------------
+# 0.3a Convert the JPEG tiles into TFRecord format for 2 or 3 classes jobs
+
+# Convert data into TFRecord files for each dataset
+
+'''
+mkdir r1_TFRecord_test
+mkdir r1_TFRecord_valid
+mkdir r1_TFRecord_train
+
+python 00_preprocessing/TFRecord_2or3_Classes/build_TF_test.py --directory='r1_sorted_3Cla/'  --output_directory='r1_TFRecord_test' --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test'
+
+python 00_preprocessing/TFRecord_2or3_Classes/build_TF_test.py --directory='r1_sorted_3Cla/'  --output_directory='r1_TFRecord_valid' --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='valid'
+
+python 00_preprocessing/TFRecord_2or3_Classes/build_image_data.py --directory='r1_sorted_3Cla/' --output_directory='r1_TFRecord_train' --train_shards=1024  --validation_shards=128 --num_threads=16
+'''
+
+
+'''
+test set:
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_2or3_Classes/build_TF_test.py --directory=/nfs/home/xwang/ReRun_Feb21th/02_sort_tiles_ReRun/ --output_directory=/nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_test/ --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test'
+
+result:
+2020-02-22 21:57:55.799083 [thread 0]: Wrote 75 images to /nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_test/test_0xF425035CD29D98CEAD2A5203DD372E25833C4D32ECB694C29043ED64F9F6BCF9_1x8ZD0YD4OF7_1.TFRecord
+2020-02-22 21:57:56.339577: Finished writing all 93216 images in data set.
+
+*----------------------
+valid set:
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_2or3_Classes/build_TF_test.py --directory=/nfs/home/xwang/ReRun_Feb21th/02_sort_tiles_ReRun/ --output_directory=/nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_valid/ --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='valid'
+
+result:
+(virpy3.6) bash-4.2$ ls |wc
+     99      99    9516
+
+2020-02-22 22:49:55.781955 [thread 0]: Wrote 98 images to /nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_valid/valid_0xF2F4BD5B36F481D7EE3970B6EB0BA6D91CC97D8F4049FBD7040D14BAE50956A5_1x1561JU9WCA_1.TFRecord
+2020-02-22 22:49:56.782040: Finished writing all 91362 images in data set.
+
+*----------------------
+train set:
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_2or3_Classes/build_TF_test.py --directory=/nfs/home/xwang/ReRun_Feb21th/02_sort_tiles_ReRun/ --output_directory=/nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_train/ --num_threads=1 --one_FT_per_Tile=True --ImageSet_basename='train'
+
+result:
+2020-02-23 03:04:47.904774 [thread 0]: Wrote 428244 images to /nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_train/train_0xF42156E70CA66CC5ABE61E0E48DFCE826BD7916407E959AED57FD55471EC2FE4_1xMHPM0WZ0ZC_9_50.jpeg_1.TFRecord
+2020-02-23 03:04:48.277915: Finished writing all 428244 images in data set.
+
+'''
+
+
+# run 1a model  ================
+'''
+(virpy3.6) bash-4.2$ python3 -m pip freeze | grep tensor
+tensorboard==1.14.0
+tensorflow-estimator==1.14.0
+tensorflow-gpu==1.14.0
+'''
+
+"""
+nohup 
+python 
+/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py 
+--checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/ 
+--eval_dir=/nfs/home/xwang/ReRun_Feb21th/2_testset_model_1a_eval_TF1_py36_Feb23/
+--data_dir=/nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_test/
+--batch_size 300
+--ImageSet_basename='test_'
+--run_once
+--ClassNumber 3
+--mode='0_softmax'
+--TVmode='test'
+"""
+
+"""
+run:
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/ --eval_dir=/nfs/home/xwang/ReRun_Feb21th/2_testset_model_1a_eval_TF1_py36_Feb23/ --data_dir=/nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_test/ --batch_size 300 --ImageSet_basename='test_' --run_once --ClassNumber 3 --mode='0_softmax' --TVmode='test'
+
+result:
+(virpy3.6) bash-4.2$ ls
+nohup.out  out_All_Stats.txt  out_filename_Stats.txt  precision_at_1.txt
+"""
+
+
+# ROC============
+"""
+			export OUTFILENAME=$TEST_OUTPUT/out_filename_Stats.txt
+			python 03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats=$OUTFILENAME  --output_dir=$TEST_OUTPUT --labels_names=$LABEL_FILE
+"""
+
+"""
+run:
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats /nfs/home/xwang/ReRun_Feb21th/2_testset_model_1a_eval_TF1_py36_Feb23/out_filename_Stats.txt --output_dir /nfs/home/xwang/ReRun_Feb21th/3_analyze_ROC_TF1_py36_Feb23/ --labels_names /nfs/home/xwang/label_names.txt
+
+result:
+(virpy3.6) bash-4.2$ ls
+nohup.out
+out1_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_AvPb_micro_auc_0.2651_CIs_0.2631_0.2672.txt
+
+out1_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_micro_auc_0.3701_CIs_0.3684_0.3717.txt
+
+out2_perSlideStats.txt
+out2_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out2_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out2_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out2_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt
+out2_roc_data_AvPb_micro_auc_0.2177_CIs_0.1626_0.2787.txt
+
+out2_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt
+out2_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt
+out2_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt
+out2_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt
+out2_roc_data_PcSel_micro_auc_0.2317_CIs_0.1753_0.2939.txt
+
+out3_perPatientStats.txt
+out3_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out3_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out3_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out3_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt
+out3_roc_data_AvPb_micro_auc_0.2177_CIs_0.1626_0.2787.txt
+
+out3_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt
+out3_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt
+out3_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt
+out3_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt
+out3_roc_data_PcSel_micro_auc_0.2317_CIs_0.1753_0.2939.txt
+
+"""
+
+
+
+
+# summarize all AUC per slide (average probability) for class 1: 
+"""
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c1a*  | sed -e 's/k\/out2_roc_data_AvPb_c1a/ /' | sed -e 's/test_/ /' | sed -e 's
+/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_1.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c2*  | sed -e 's/k\/out2_roc_data_AvPb_c2/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_2.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c3*  | sed -e 's/k\/out2_roc_data_AvPb_c3/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_3.txt
+"""
+
+
+
+#
+# Code for 03_postprocessing/multiClasses for probability distributions (mutation analysis):
+"""
+run:
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/multiClasses/0f_ProbHistogram.py --output_dir=/nfs/home/xwang/ReRun_Feb21th/3_analyze_PD_TF1_py36_Feb23/ --tiles_stats=/nfs/home/xwang/ReRun_Feb21th/2_testset_model_1a_eval_TF1_py36_Feb23/out_filename_Stats.txt --ctype='Lung3Classes'
+
+result:
+"""
+
+
+#
+# 
+# Generate heat-maps with no overlay (fast)
+# In the output CMap, each tile will be replaced by a single pixel which color is proportional to the probability associated to it in the out_filename_Stats.txt file. 
+# Each class is associated to one of the RGB channels of the image, and the number of classes that can be display on a single heatmap is therefore limited to 3. 
+# Use the Classes option (string with digits separated by coma) to select which class should be associated to which channel. 
+# In the example below, class 3 is associated to channel R, class 1 to channel G and class 2 to chennel B.
+'''
+cd /nfs/home/xwang/ReRun_Feb21th/3_heatmap_fast_nooverlay_Analyze_Outcome_Feb27_TF1_Py36/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0g_HeatMap_MultiChannels.py --tiles_overlap=0 --tiles_size=512 --output_dir=/nfs/home/xwang/ReRun_Feb21th/3_heatmap_fast_nooverlay_Analyze_Outcome_Feb27_TF1_Py36/CMap_output/ --tiles_stats=/nfs/home/xwang/ReRun_Feb21th/2_testset_model_1a_eval_TF1_py36_Feb23/out_filename_Stats.txt --Classes='3,1,2' --slide_filter=''
+
+result:
+in folder:  /nfs/home/xwang/ReRun_Feb21th/3_heatmap_fast_nooverlay_Analyze_Outcome_Feb27_TF1_Py36/CMap_output/
+75 images
+'''
+
+#
+##
+
+
+## Generate heat-maps per slides overlaid on original slide (all test slides in a given folder; code not optimized and slow):
+
+"""
+cd /nfs/home/xwang/ReRun_Feb21th/3_analyze_HEATMAP_Overlay_OrignialImage_Feb27_TF1_py36/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py 
+--image_file /nfs/home/xwang/ReRun_Feb21th/02_sort_tiles_ReRun/ 
+--tiles_overlap 0 
+--output_dir /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/heatmaps_overlay
+--tiles_stats /nfs/home/xwang/gene_mutation_prediction_March/ru_model/out_filename_Stats.txt 
+--resample_factor 10 --slide_filter 'test' 
+--filter_tile '' 
+--Cmap 
+--tiles_size 512
+
+"""
+
+
+
+
+
+

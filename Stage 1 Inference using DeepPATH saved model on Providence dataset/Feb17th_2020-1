@@ -1,0 +1,67 @@
+Analyze the outcome
+
+Generate heat-maps per slides overlaid on original slide 
+(all test slides in a given folder;code not optimized and slow):
+
+code in 03_postprocessing/0f_HeatMap_nClasses.py:
+
+python 0f_HeatMap_nClasses.py  
+--image_file 'directory_to_jpeg_classes' 
+--tiles_overlap 0 
+--output_dir 'result_folder' 
+--tiles_stats 'out_filename_Stats.txt' 
+--resample_factor 10 
+--slide_filter 'TCGA-05-5425' 
+--filter_tile '' 
+--Cmap 'CancerType' 
+--tiles_size 512
+
+* --------------------------------------------------------------
+nohup python
+/nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py
+--image_file /nfs/home/xwang/02_sort_tiles/LUAD/
+--tiles_overlap 0
+--output_dir /nfs/home/xwang/3_analyze_outcome_TF1_py36_Feb17/
+--tiles_stats /nfs/home/xwang/2_testset_model_1a_eval_TF1_py36_Feb12/out_filename_Stats.txt
+--resample_factor 10
+--slide_filter 'test'
+--filter_tile ''
+--Cmap 'CancerType'
+--tiles_size 299
+
+**--------------------------------------------------------------
+slide_filter: process only images with this basename.
+filter_tile: 
+    if map is a mutation, apply cmap of mutations 
+        only if tiles are LUAD 
+        (out_filename_Stats.txt of Noemal/LUAD/LUSC classification)
+
+Cmap: CancerType for Normal/LUAD/LUSC classification, or mutation name.
+
+optiotnal: thresholds: thresholds to use for each label - string, for example: 0.285,0.288,0.628. If none, take the highest one.
+--resample_factor: 'reduce the size of the output by this factor.'
+--slide_filter: 'process only images with this basename.'
+colors are: black for class 1, red for class 2, blue for class 3, orange for class 4, green for class 5, purple otherwise
+
+**--------------------------------------------------------------
+nohup python
+/nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py
+--image_file /nfs/home/xwang/02_sort_tiles/LUAD/
+--tiles_overlap 0
+--output_dir /nfs/home/xwang/3_analyze_outcome_TF1_py36_Feb17/
+--tiles_stats /nfs/home/xwang/2_testset_model_1a_eval_TF1_py36_Feb12/out_filename_Stats.txt
+--resample_factor 10
+--slide_filter 'test'
+--filter_tile ''
+--Cmap 'CancerType'
+--tiles_size 299
+
+trying the command:
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py --image_file /nfs/home/xwang/02_sort_tiles/LUAD/ --tiles_overlap 0 --output_dir /nfs/home/xwang/3_analyze_outcome_TF1_py36_Feb17/ --tiles_stats /nfs/home/xwang/2_testset_model_1a_eval_TF1_py36_Feb12/out_filename_Stats.txt --resample_factor 10 --slide_filter 'test' --filter_tile '' --Cmap 'CancerType' --tiles_size 299
+
+# note that the value set for parameter --resample_factor is 10. 
+#       change this value for own perference. 
+
+---:
+generate thumbnail besides the heat map for better comparison. 
+Wait for the program to finish, if nothing generate out, ask Kevin for OpenSide Scripts for generating thumbnails. 

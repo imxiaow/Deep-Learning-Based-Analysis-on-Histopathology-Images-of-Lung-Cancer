@@ -1,0 +1,7 @@
+0.000000	nan
+0.352617	nan
+0.444155	nan
+1.000000	nan
+nan	nan
+nan	nan
+nan	nan

@@ -1,0 +1,14 @@
+0.000000	nan
+0.001555	nan
+0.006995	nan
+0.012507	nan
+0.031586	nan
+0.041478	nan
+0.075678	nan
+0.085359	nan
+0.210430	nan
+0.528406	nan
+1.000000	nan
+nan	nan
+nan	nan
+nan	nan

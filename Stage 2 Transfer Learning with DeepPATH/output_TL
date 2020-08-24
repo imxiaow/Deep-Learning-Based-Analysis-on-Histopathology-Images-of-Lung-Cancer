@@ -1,0 +1,44 @@
+(virpy3.6) -bash-4.2$ bazel-bin/inception/imagenet_train --num_gpus=1 --batch_size=400 --train_dir=/nfs/home/xwang/Transfer_Learning_April/model_1a/train_model_1a/ --data_dir=/nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_train/ --pretrained_model_checkpoint_path=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/ --fine_tune=True --initial_learning_rate=0.001 --ClassNumber=3 --mode='0_softmax' --NbrOfImages=428244 --save_step_for_chekcpoint=1070 --max_steps=107001
+
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:516: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:517: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:518: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:519: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:520: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:541: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:542: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:543: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:544: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:545: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/nfs/home/xwang/virpy3.6/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:550: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+WARNING:tensorflow:From /nfs/home/xwang/DeepPATH/DeepPATH_code/01_training/xClasses/bazel-bin/inception/imagenet_train.runfiles/inception/inception/imagenet_train.py:41: The name tf.app.run is deprecated. Please use tf.compat.v1.app.run instead.
+
+!!!!!!!!!!!!!!
+/nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_train/train-*
+WARNING:tensorflow:From /nfs/home/xwang/DeepPATH/DeepPATH_code/01_training/xClasses/bazel-bin/inception/imagenet_train.runfiles/inception/inception/dataset.py:92: The name tf.gfile.Glob is deprecated. Please use tf.io.gfile.glob instead.
+
+W0424 10:25:15.518243 139845796091712 deprecation_wrapper.py:119] From /nfs/home/xwang/DeepPATH/DeepPATH_code/01_training/xClasses/bazel-bin/inception/imagenet_train.runfiles/inception/inception/dataset.py:92: The name tf.gfile.Glob is deprecated. Please use tf.io.gfile.glob instead.
+
+No files found for dataset ImageNet/train at /nfs/home/xwang/ReRun_Feb21th/03a_convertJPEGtoTFRecord/03a_TFRecord_train/
+Failed to find any ImageNet train files
+
+If you have already downloaded and processed the data, then make sure to set --data_dir to point to the directory containing the location of the sharded TFRecords.
+
+If you have not downloaded and prepared the ImageNet data in the TFRecord format, you will need to do this at least once. This process could take several hours depending on the speed of your computer and network connection
+
+Please see README.md for instructions on how to build the ImageNet dataset using download_and_preprocess_imagenet.
+
+Note that the raw data size is 300 GB and the processed data size is 150 GB. Please ensure you have at least 500GB disk space.

@@ -1,0 +1,52 @@
+To also get confidence intervals (Bootstrap technique), use this code:
+
+
+python 0h_ROC_MultiOutput_BootStrap.py  --file_stats /path_to/out_filename_Stats.txt  --output_dir /path_to/output_folder/ --labels_names /path_to/label_names.txt --ref_stats '' 
+
+
+trying the following:
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats /nfs/home/xwang/2_testset_model_1a_eval_TF1_py36_Feb12/out_filename_Stats.txt --output_dir /nfs/home/xwang/3_analyze_outcome_ROC_TF1_py36_Feb21/ --labels_names /nfs/home/xwang/label_names.txt --ref_stats ''
+
+
+
+
+It will generate files starting with "out1" for non aggregated per tile ROC, 
+    and files starting with "out2" for per slide aggregated ROC curve. 
+    AUC will be show in the filename. File names of the outputs:
+        start with out1 if the ROC are per tile
+        start with out2 if the ROC are per slide
+        then contain if the per slide aggregation was done by averaging probabilities
+        or if the aggregation was done by computing the percentage of tile selected
+        then, the names end with something like ........c1auc_0.6071_CIs_0.6023_0.6121_t0.367.txt -> c1 (or c2 or c3...) means class 1 -> auc_0.6071. is the AUC for this class (if you have only 2 classes, the curves and AUC should be the same)
+        the next two numbers are the CIs
+        the last one with the "t" is the "optimal" threshold for this class (computed such as it's the nearest point on the ROC curve to the perfect (1,0) corner).
+
+
+results:
+
+- most NA. and very low value. I used 3 class labeled as input. 
+- Try with only LUAD + LUSC?
+
+*--------
+2 classas label name 
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats /nfs/home/xwang/2_testset_model_1a_eval_TF1_py36_Feb12/out_filename_Stats.txt --output_dir /nfs/home/xwang/3_analyze_outcome_ROC2C_TF1_py36_Feb21 --labels_names /nfs/home/xwang/label_2C_names.txt --ref_stats ''
+
+
+result:
+na.
+
+
+
+
+
+#=================================================
+Code for 03_postprocessing/multiClasses for probability distributions (mutation analysis):
+
+trying:
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/multiClasses/0f_ProbHistogram.py --output_dir=/nfs/home/xwang/3_analyze_outcome_PD_TF1_py36_Feb21/ --tiles_stats=/nfs/home/xwang/2_testset_model_1a_eval_TF1_py36_Feb12/out_filename_Stats.txt --ctype='Lung3Classes'
+
+-done. 196 files produced 
+# END

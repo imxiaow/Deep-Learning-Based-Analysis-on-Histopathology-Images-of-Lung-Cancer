@@ -1,0 +1,98 @@
+# model.ckpt-69000
+# --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000
+use the checkpoint_dir with model.ckpt-69000 apend to try:
+
+  nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000 --eval_dir=/nfs/home/xwang/2_testset_model_1a_eval/ --data_dir=/nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/ --batch_size 30 --ImageSet_basename='test_' --run_once --ClassNumber 2 --mode='0_softmax' --TVmode='test'
+
+Result:
+    ckpt: None
+    FLAGS.checkpoint_dir: /nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000
+    No checkpoint file found
+
+FAILED
+*---------------
+
+TRY to create the file called <checkpoint> with following content:
+  model_checkpoint_path: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+  all_model_checkpoint_paths: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+
+Try to run right now:
+
+  nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/ --eval_dir=/nfs/home/xwang/2_testset_model_1a_eval/ --data_dir=/nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/ --batch_size 30 --ImageSet_basename='test_' --run_once --ClassNumber 2 --mode='0_softmax' --TVmode='test'
+
+Result:
+    ckpt: model_checkpoint_path: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+    all_model_checkpoint_paths: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+    FLAGS.checkpoint_dir: /nfs6/deeppath_models/checkpoints/run1a_3D_classifier/
+*---------------
+
+Added few more print statement inside </nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/inception/nc_inception_eval.py>
+  nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/ --eval_dir=/nfs/home/xwang/2_testset_model_1a_eval/ --data_dir=/nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/ --batch_size 30 --ImageSet_basename='test_' --run_once --ClassNumber 2 --mode='0_softmax' --TVmode='test'
+
+Result:
+
+  ckpt: model_checkpoint_path: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+  all_model_checkpoint_paths: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+  FLAGS.checkpoint_dir: /nfs6/deeppath_models/checkpoints/run1a_3D_classifier/
+  ckpt.model_checkpoint_path: /nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000
+  entering ckpt ifstatement right now..
+  os.path.isabs(ckpt.model_checkpoint_path):True
+  entering inner loop rn...
+
+  *-------
+  The program found the checkpoint-model and now restored parameters.
+
+
+  *-------
+  Restoring parameters from /nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000
+  ==================================
+  E0207 11:38:08.550486 139835036034880 tf_should_use.py:92] ==================================
+  Object was never used (type <class 'tensorflow.python.framework.ops.Operation'>):
+  <tf.Operation 'init' type=NoOp>
+  If you want to mark it as used call its "mark_used()" method.
+  It was originally created here:
+    File "/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/absl/app.py", line 250, in _run_main
+      sys.exit(main(argv))  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py", line 67, in main
+      precision_at_1, current_score = nc_inception_eval.evaluate(dataset)  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/inception/nc_inception_eval.py", line 423, in evaluate
+      precision_at_1, current_score = _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op, max_percent, all_filenames, filename_queue, net2048, sel_end_points, logits, labels)  File "/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/inception/nc_inception_eval.py", line 68, in _eval_once
+      tf.initialize_all_variables()  File "/nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/tensorflow_core/python/util/tf_should_use.py", line 237, in wrapped
+      error_in_function=error_in_function)
+  ==================================
+
+  XXXX.TFRecord FAILED to be processed properly
+
+  *-------
+    added print message before "Successfully load the model..." to check.
+
+RESULT:
+  nothing print out. => never finish restoring parameters...
+
+  check saver.restore() function.
+    print(saver)
+      saver: <tensorflow.python.training.saver.Saver object at 0x7f9b225353d0>
+
+
+*-------------------------
+03a_convertJPEGtoTFRecord output file:
+  (3.7.5) -bash-4.2$ cat nohup.out
+  2020-01-30 08:29:57.986454: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libnvinfer.so.6'; dlerror: libnvinfer.so.6: cannot open shared object file: No such file or directory
+  2020-01-30 08:29:57.986612: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libnvinfer_plugin.so.6'; dlerror: libnvinfer_plugin.so.6: cannot open shared object file: No such file or directory
+  2020-01-30 08:29:57.986634: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:30] Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+  WARNING:tensorflow:From /nfs/home/xwang/.env/3.7.5/lib/python3.7/site-packages/tensorflow_core/python/compat/v2_compat.py:88: disable_resource_variables (from tensorflow.python.ops.variable_scope) is deprecated and will be removed in a future version.
+  Instructions for updating:
+  non-resource variables are not supported in the long term
+  Saving results to /nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/
+  test
+  Determining list of input files and labels from /nfs/home/xwang/02_sort_tiles/.
+  ['LUAD']
+  Found 213385 JPEG files across 1 labels inside /nfs/home/xwang/02_sort_tiles/.
+  ....
+  ....
+  2020-01-30 09:57:00.572688 [thread 0]: Wrote 98 images to /nfs/home/xwang/03a_convertJPEGtoTFRecord/03a_TFRecord_test/test_0xFEFD85ED1685D8F0B95EE488F845A4AA4689639C59FBE4EB899B6049E78BC1E9_1xN46ZKNTGG0_1.TFRecord
+  2020-01-30 09:57:01.340569: Finished writing all 213385 images in data set.
+*-------------------------
+
+
+
+#========
+#END

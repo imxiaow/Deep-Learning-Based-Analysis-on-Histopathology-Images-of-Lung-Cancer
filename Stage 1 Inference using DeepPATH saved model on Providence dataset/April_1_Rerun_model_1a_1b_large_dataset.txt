@@ -1,0 +1,320 @@
+#-----------------
+# April 1, 2020
+# python 3.6 env. 
+#-----------------
+
+
+# ------ preprocess 01 step. 
+
+# break into tiles
+# Tile the images using the magnification (20x) and tile size of interest (512x512 px in this example):
+
+"""
+/nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/
+
+result at directory:   /nfs6/deeppath_scratch/Pre_processing_2nd_Feb21
+
+bash-4.2$ ls |wc
+1040    1040   88400
+
+total: 1040 images. for each one, only 20x magnification is contained. 
+
+"""
+
+
+# ------ 0.2: Sort the tiles into train/valid/test sets according to the classes defined.
+
+# Sort the dataset into a test, train and validation cohort for a 3-way classifier (LUAD/LUSC/Normal). 
+# You need to create a new directory and run this job from that directory
+
+'''
+# create a new directory for this newly sorting results to sit.
+# the following command sort tiles into <--PercentTest=50 --PercentValid=0>;
+
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/02_sort_tiles_test_50
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py --SourceFolder=/nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/ --Magnification=20.0  --MagDiffAllowed=0 --SortingOption=14  --PatientID=12 --nSplit 0 --JsonFile /nfs/home/xwang/Sorting_option_JASON_FILE.txt --PercentTest=50 --PercentValid=0
+'''
+# results:
+"""
+Train / Test / Validation tiles sets for LUAD = 0.497435 %  / 0.502565 % / 0.000000 %
+Train / Test / Validation slides sets for LUAD = 0.426641 %  / 0.573359 % / 0.000000 %
+Train / Test / Validation patients sets for LUAD = 0.430928 %  / 0.569072 % / 0.000000 %
+
+LUAD 612822
+
+LUAD_test 307983
+LUAD_train 304839
+LUAD_valid 0
+
+LUAD_test 0.5025651820593908
+LUAD_train 0.4974348179406092
+LUAD_valid 0.0
+
+LUAD 518
+
+LUAD_test 297 --> Number of images.
+LUAD_train 221
+LUAD_valid 0
+
+LUAD 485
+
+LUAD_test 276 --> number of patients.
+LUAD_train 209
+LUAD_valid 0
+"""
+
+
+# ------ 0.3a Convert the JPEG tiles into TFRecord format for 2 or 3 classes jobs
+# Convert data into TFRecord files for each dataset
+
+'''
+mkdir 03_convert_JPEG_to_TFRecord
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/03_convert_JPEG_to_TFRecord
+mkdir test_set
+mkdir train_set
+
+cd test_set 
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_2or3_Classes/build_TF_test.py --directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/02_sort_tiles_test_50/ --output_directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/03_convert_JPEG_to_TFRecord/test_set/ --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test'
+
+result:  # of images. 
+2020-04-01 10:45:46.252611 [thread 0]: Wrote 297 images to /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/03_convert_JPEG_to_TFRecord/test_set/test_0xF315DD14C704C29A8B7003DD2D11FFBC225382B425698D4A554E42AFDAFF6E7D_1xDCSYBX6018_1.TFRecord
+2020-04-01 10:45:46.401685: Finished writing all 307983 images in data set.
+
+
+cd train_set
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_2or3_Classes/build_TF_test.py --directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/02_sort_tiles_test_50/ --output_directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/03_convert_JPEG_to_TFRecord/train_set/ --num_threads=1 --one_FT_per_Tile=True --ImageSet_basename='train'
+
+
+result: # of tiles. 
+2020-04-01 13:34:35.376224 [thread 0]: Wrote 304839 images to /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/03_convert_JPEG_to_TFRecord/train_set/train_0xF425035CD29D98CEAD2A5203DD372E25833C4D32ECB694C29043ED64F9F6BCF9_1x8ZD0YD4OF7_9_51.jpeg_1.TFRecord
+2020-04-01 13:34:35.801483: Finished writing all 304839 images in data set.
+''' 
+
+
+# ------ run model 1a on test set 
+
+#input
+"""
+nohup 
+python 
+/nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py 
+--checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/ 
+--eval_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a/
+--data_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/03_convert_JPEG_to_TFRecord/test_set/
+--batch_size 300
+--ImageSet_basename='test_'
+--run_once
+--ClassNumber 3
+--mode='0_softmax'
+--TVmode='test'
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/ --eval_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a/ --data_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/03_convert_JPEG_to_TFRecord/test_set/ --batch_size 300 --ImageSet_basename='test_' --run_once --ClassNumber 3 --mode='0_softmax' --TVmode='test'
+"""
+
+#results:
+"""
+(virpy3.6) -bash-4.2$ pwd
+/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a
+(virpy3.6) -bash-4.2$ ls
+nohup.out  out_All_Stats.txt  out_filename_Stats.txt  precision_at_1.txt
+"""
+
+
+# ------ model performance analysis: heatmaps overlay 
+
+#input
+"""
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a_analyze_result/heatmap_overlay/
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py --image_file /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/02_sort_tiles_test_50/ --tiles_overlap 0 --output_dir /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a_analyze_result/heatmap_overlay/ --tiles_stats /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a/out_filename_Stats.txt --resample_factor 10 --slide_filter 'test' --filter_tile '' --Cmap 'CancerType' --tiles_size 512
+"""
+#results
+"""
+"""
+
+
+# ------ model performance analysis: ROC
+
+#input
+"""
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a/out_filename_Stats.txt --output_dir /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a_analyze_result/ROC/ --labels_names /nfs/home/xwang/label_names.txt
+"""
+#results
+"""
+(virpy3.6) -bash-4.2$ pwd
+/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a_analyze_result/ROC
+(virpy3.6) -bash-4.2$ ls
+nohup.out                                                     out2_perSlideStats.txt                                        out3_perPatientStats.txt
+out1_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out2_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out3_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out2_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out3_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out2_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out3_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt        out2_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt        out3_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_AvPb_micro_auc_0.3113_CIs_0.3101_0.3124.txt     out2_roc_data_AvPb_micro_auc_0.2367_CIs_0.2060_0.2694.txt     out3_roc_data_AvPb_micro_auc_0.2367_CIs_0.2060_0.2694.txt
+out1_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt           out2_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt           out3_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt           out2_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt           out3_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt           out2_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt           out3_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt       out2_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt       out3_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_micro_auc_0.4024_CIs_0.4015_0.4033.txt    out2_roc_data_PcSel_micro_auc_0.2606_CIs_0.2281_0.2954.txt    out3_roc_data_PcSel_micro_auc_0.2606_CIs_0.2281_0.2954.txt
+"""
+
+
+# ------ model performance analysis: mutation probability distribution. 
+
+#input
+"""
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/multiClasses/0f_ProbHistogram.py --output_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a_analyze_result/mutation_probability_distribution/ --tiles_stats=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a/out_filename_Stats.txt --ctype='Lung3Classes'
+"""
+#results
+"""
+(virpy3.6) -bash-4.2$ ls | wc
+    595     595   64459
+(virpy3.6) -bash-4.2$ pwd
+/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a_analyze_result/mutation_probability_distribution
+"""
+
+# ----------------------------------------------------
+# graph ROC, AUC - DONE. 
+# look into mutation probability distribution. - DONE. 
+# heatmaps - running , 296 rn
+
+# ----------------------------------------------------
+# ------ sort LUAD tiles based model 1a output file
+#input
+"""
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/sort_identified_LUAD/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py
+--SourceFolder=/nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/
+--Magnification=20  
+--MagDiffAllowed=0 
+--SortingOption=10 #Just create symbolic links to all images in a single label folder and assign images to train/test/valid sets. 
+--PatientID=-1 
+--PercentTest=100
+--PercentValid=0
+--nSplit 0 
+--outFilenameStats=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a/out_filename_Stats.txt
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py --SourceFolder=/nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/ --Magnification=20 --MagDiffAllowed=0 --SortingOption=10 --PatientID=-1 --PercentTest=100 --PercentValid=0 --nSplit 0 --outFilenameStats=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1a/model_1a/out_filename_Stats.txt
+"""
+
+#results
+"""
+Pre_processing_2nd_Feb21 62590
+Pre_processing_2nd_Feb21_test 62590
+Pre_processing_2nd_Feb21_train 0
+Pre_processing_2nd_Feb21_valid 0
+Pre_processing_2nd_Feb21_test 1.0
+Pre_processing_2nd_Feb21_train 0.0
+Pre_processing_2nd_Feb21_valid 0.0
+Pre_processing_2nd_Feb21 268
+Pre_processing_2nd_Feb21_test 268
+Pre_processing_2nd_Feb21_train 0
+Pre_processing_2nd_Feb21_valid 0
+"""
+
+# ------ convert into TFRecord for model 1b
+#input
+"""
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py 
+--directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/sort_identified_LUAD/Pre_processing_2nd_Feb21
+--output_directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/convert_TFRecord/
+--num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test' --labels_names=/nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt 
+--labels=/nfs/home/xwang/gene_mutation_prediction_March/labels_r3.txt 
+--PatientID=14
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py --directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/sort_identified_LUAD/Pre_processing_2nd_Feb21 --output_directory=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/convert_TFRecord/ --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test' --labels_names=/nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt --labels=/nfs/home/xwang/gene_mutation_prediction_March/labels_r3.txt --PatientID=14
+"""
+#results
+"""
+2020-04-08 21:19:11.753760 [thread 0]: Wrote 56 images to /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/convert_TFRecord/test_0xF207C1FE18C2B10C7DBD5DA8341F519949D5241ADE89BBB01DE7A005581808D0_1xUNTWOBNTVD_00000100000.TFRecord
+2020-04-08 21:19:12.020161: Finished writing all 14152 images in data set.
+
+
+(virpy3.6) -bash-4.2$ ls | wc
+     57      57    5946
+(virpy3.6) -bash-4.2$ pwd
+/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/convert_TFRecord
+"""
+
+
+# ------------------------ 
+# ------ run model 1b
+# ------------------------ 
+#input
+"""
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py
+--checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/
+--eval_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/
+--data_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/convert_TFRecord/
+--batch_size 200 
+--run_once 
+--ImageSet_basename='test_' 
+--ClassNumber 10
+--mode='1_sigmoid'  
+--TVmode='test'
+
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/ --eval_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/ --data_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/convert_TFRecord/ --batch_size 200 --run_once --ImageSet_basename='test_' --ClassNumber 10 --mode='1_sigmoid' --TVmode='test'
+"""
+#results
+"""
+done. 
+"""
+
+# ------ model performance analysis: heatmaps overlay 
+#input
+"""
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/heatmap_overlay
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py
+--image_file /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/sort_identified_LUAD/
+--tiles_overlap 0
+--output_dir /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/heatmap_overlay/
+--tiles_stats /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/out_filename_Stats.txt
+--resample_factor 10
+--slide_filter 'test'
+--filter_tile ''
+--Cmap 'KRAS'
+--tiles_size 512
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py --image_file /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/sort_identified_LUAD/ --tiles_overlap 0 --output_dir /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/heatmap_overlay/ --tiles_stats /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/out_filename_Stats.txt --resample_factor 10 --slide_filter 'test' --filter_tile '' --Cmap 'KRAS' --tiles_size 512
+"""
+
+#results
+"""
+# should be 56 images.
+
+"""
+
+# ------ model performance analysis: ROC
+#input
+"""
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/ROC/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py 
+--file_stats /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/out_filename_Stats.txt
+--output_dir /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/ROC/
+--labels_names /nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt 
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/out_filename_Stats.txt --output_dir /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/ROC/ --labels_names /nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt 
+"""
+#results
+"""
+"""
+
+# ------ model performance analysis: mutation probability distribution. 
+#input
+"""
+cd /nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/gene_mutation_probability_distribution/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/multiClasses/0f_ProbHistogram.py 
+--output_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/gene_mutation_probability_distribution/
+--tiles_stats=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/out_filename_Stats.txt
+--ctype='Mutations'
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/multiClasses/0f_ProbHistogram.py --output_dir=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/analyze_results_model_1b/gene_mutation_probability_distribution/ --tiles_stats=/nfs/home/xwang/April_model_1a_1b_large_dataset/model_1b/evaluate_model_1b/out_filename_Stats.txt --ctype='Mutations'
+"""
+#results
+"""
+done.
+"""

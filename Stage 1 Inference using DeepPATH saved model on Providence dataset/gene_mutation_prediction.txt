@@ -1,0 +1,318 @@
+#*---------------------------------------------------------------------------------------------
+# sort the LUAD tiles identified as LUAD intro a train, valid a test set for mutation analysis
+
+#input
+"""
+pwd
+/nfs/home/xwang/gene_mutation_prediction_March
+mkdir r3_LUAD_sorted_partial_test
+cd r3_LUAD_sorted_partial_test/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py
+--SourceFolder=/nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/
+--Magnification=20  
+--MagDiffAllowed=0 
+--SortingOption=10 #Just create symbolic links to all images in a single label folder and assign images to train/test/valid sets. 
+--PatientID=-1 
+--PercentTest=100
+--PercentValid=0
+--nSplit 0 
+--outFilenameStats=/nfs/home/xwang/ReRun_Feb21th/2_testset_model_1a_eval_TF1_py36_Feb23/out_filename_Stats.txt
+
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/0d_SortTiles.py --SourceFolder=/nfs6/deeppath_scratch/Pre_processing_2nd_Feb21/ --Magnification=20 --MagDiffAllowed=0 --SortingOption=10 --PatientID=-1 --PercentTest=100 --PercentValid=0 --nSplit 0 --outFilenameStats=/nfs/home/xwang/ReRun_Feb21th/2_testset_model_1a_eval_TF1_py36_Feb23/out_filename_Stats.txt
+
+"""
+#result:
+'''
+Pre_processing_2nd_Feb21 14924
+Pre_processing_2nd_Feb21_test 14924
+Pre_processing_2nd_Feb21_train 0
+Pre_processing_2nd_Feb21_valid 0
+Pre_processing_2nd_Feb21_test 1.0
+Pre_processing_2nd_Feb21_train 0.0
+Pre_processing_2nd_Feb21_valid 0.0
+Pre_processing_2nd_Feb21 67
+Pre_processing_2nd_Feb21_test 67
+Pre_processing_2nd_Feb21_train 0
+Pre_processing_2nd_Feb21_valid 0
+'''
+
+
+#*---------------------------------------------------------------------------------------------
+# Convert to TFRecord:
+
+#input
+"""
+python  /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py 
+--directory=/nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/Pre_processing_2nd_Feb21/  
+--output_directory=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF/r3_TFRecord_test 
+--num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test' --labels_names=/nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt 
+--labels=/nfs/home/xwang/gene_mutation_prediction_March/labels_r3.txt 
+--PatientID=14
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py --directory=/nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/Pre_processing_2nd_Feb21/ --output_directory=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF/r3_TFRecord_test --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test' --labels_names=/nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt --labels=/nfs/home/xwang/gene_mutation_prediction_March/labels_r3.txt --PatientID=14
+"""
+
+#result:
+'''
+Found 2090 JPEG files across 10 labels inside /nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/Pre_processing_2nd_Feb21/.
+Found 2090 slides and labels are represented this many times:
+[   0.    0.    0.    0.    0. 2090.    0.    0.    0.    0.    0.]
+(2090, 11)
+DONE***********************************************************
+Launching 1 threads for spacings: [[0, 2090]]
+WARNING:tensorflow:From /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py:124: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2020-03-10 22:10:41.598067 [thread 0]: Wrote 12 images to /nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF/r3_TFRecord_test/test_0xEE1C114198E7B605094F1F2D297F3854C80497BB1D76FE55834A7A37A8F077AE_1x8GVBEL2NHS_00000100000.TFRecord
+2020-03-10 22:10:41.930123: Finished writing all 2090 images in data set.
+'''
+
+#*------------------------
+# March 29th, 2020
+#*------------------------
+# The PatientID should change to 66, which reflects the real length of P_ID. 
+# Try with <--PatientID=66> for creating TFRecord to see if this will result in different output. 
+
+#input
+"""
+python  /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py 
+--directory=/nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/Pre_processing_2nd_Feb21/  
+--output_directory=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF_March_29/r3_TFRecord_test
+--num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test' --labels_names=/nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt 
+--labels=/nfs/home/xwang/gene_mutation_prediction_March/labels_r3.txt 
+--PatientID=66
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py --directory=/nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/Pre_processing_2nd_Feb21/ --output_directory=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF_March_29/r3_TFRecord_test --num_threads=1 --one_FT_per_Tile=False --ImageSet_basename='test' --labels_names=/nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt --labels=/nfs/home/xwang/gene_mutation_prediction_March/labels_r3.txt --PatientID=66
+"""
+
+#output
+
+"""
+Found 2090 JPEG files across 10 labels inside /nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/Pre_processing_2nd_Feb21/.
+Found 2090 slides and labels are represented this many times:
+[   0.    0.    0.    0.    0. 2090.    0.    0.    0.    0.    0.]
+(2090, 11)
+DONE***********************************************************
+Launching 1 threads for spacings: [[0, 2090]]
+WARNING:tensorflow:From /nfs/home/xwang/DeepPATH/DeepPATH_code/00_preprocessing/TFRecord_multi_Classes/build_TF_test_multiClass.py:124: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2020-03-29 12:43:50.741753 [thread 0]: Wrote 12 images to /nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF_March_29/r3_TFRecord_test/test_0xEE1C114198E7B605094F1F2D297F3854C80497BB1D76FE55834A7A37A8F077AE_1x8GVBEL2NHS_00000100000.TFRecord
+2020-03-29 12:43:51.333603: Finished writing all 2090 images in data set.
+"""
+
+
+#*---------------------------------------------------------------------------------------------
+# run 1b model  ================
+#  softmax classifier of gene mutations
+
+#input 
+"""
+(virpy3.6) -bash-4.2$ python3 -m pip freeze | grep tensor
+tensorboard==1.14.0
+tensorflow-estimator==1.14.0
+tensorflow-gpu==1.14.0
+
+(virpy3.6) -bash-4.2$ cat checkpoint 
+model_checkpoint_path: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+all_model_checkpoint_paths: "/nfs6/deeppath_models/checkpoints/run1a_3D_classifier/model.ckpt-69000"
+-----
+checkpoint
+model.ckpt-81500.data-00000-of-00001  
+model.ckpt-81500.index  
+model.ckpt-81500.meta
+-----
+model_checkpoint_path: "/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/model.ckpt-81500"
+all_model_checkpoint_paths: "/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/model.ckpt-81500"
+-----
+
+python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py
+--checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/
+--eval_dir=/nfs/home/xwang/gene_mutation_prediction_March/ru_model/
+--data_dir=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF/r3_TFRecord_test/ 
+--batch_size 200 
+--run_once 
+--ImageSet_basename='test_' 
+--ClassNumber 10
+--mode='0_softmax'  
+--TVmode='test'
+
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/ --eval_dir=/nfs/home/xwang/gene_mutation_prediction_March/ru_model/ --data_dir=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF/r3_TFRecord_test/ --batch_size 200 --run_once --ImageSet_basename='test_' --ClassNumber 10 --mode='0_softmax' --TVmode='test'
+"""
+
+#output:
+"""
+"Unexpected error: (<class 'tensorflow.python.framework.errors_impl.InvalidArgumentError'>, InvalidArgumentError(), <traceback object at 0x7f82799db6c8>)"
+"""
+
+
+#*------------------------
+# March 29th, 2020
+#*------------------------
+# By checking the documentations on Github, 
+# 10-class classfication are done by sigmoid classifier; 
+# NOT softmax. 
+# So, change the parameter settings to see if there's still errors appearing. 
+
+#input
+"""
+python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py
+--checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/
+--eval_dir=/nfs/home/xwang/gene_mutation_prediction_March/ru_model/
+--data_dir=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF_March_29/r3_TFRecord_test/ 
+--batch_size 200 
+--run_once 
+--ImageSet_basename='test_' 
+--ClassNumber 10
+--mode='1_sigmoid'  
+--TVmode='test'
+
+cd /nfs/home/xwang/gene_mutation_prediction_March/ru_model/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/02_testing/xClasses/nc_imagenet_eval.py --checkpoint_dir=/nfs6/deeppath_models/checkpoints/run1b_10way_MutationClassifier/ --eval_dir=/nfs/home/xwang/gene_mutation_prediction_March/ru_model/ --data_dir=/nfs/home/xwang/gene_mutation_prediction_March/convert_to_TF_March_29/r3_TFRecord_test/ --batch_size 200 --run_once --ImageSet_basename='test_' --ClassNumber 10 --mode='1_sigmoid' --TVmode='test'
+"""
+
+#results
+"""
+(virpy3.6) -bash-4.2$ pwd
+/nfs/home/xwang/gene_mutation_prediction_March/ru_model
+(virpy3.6) -bash-4.2$ cat precision_at_1.txt 
+2020-03-29 14:24:33.009222:	Precision:0.75
+2020-03-29 14:24:44.562854:	Precision:0.7605
+2020-03-29 14:24:56.397461:	Precision:0.77975
+2020-03-29 14:25:30.526314:	Precision:0.727
+2020-03-29 14:25:42.618373:	Precision:0.7555
+2020-03-29 14:25:54.521623:	Precision:0.80975
+2020-03-29 14:26:06.011783:	Precision:0.78025
+2020-03-29 14:26:17.749549:	Precision:0.8
+2020-03-29 14:26:29.521375:	Precision:0.77625
+2020-03-29 14:26:41.240629:	Precision:0.778
+2020-03-29 14:27:14.934032:	Precision:0.7147
+2020-03-29 14:27:26.423781:	Precision:0.72375
+"""
+
+#*---------------------------------------------------------------------------------------------
+#*---------------------------------------------------------------------------------------------
+# March 29 
+
+# analze outcome
+# 1. heatmap with overlay 
+
+#input
+"""
+cd /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/heatmaps_overlay/ 
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py
+--image_file /nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/Pre_processing_2nd_Feb21/
+--tiles_overlap 0
+--output_dir /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/heatmaps_overlay/
+--tiles_stats /nfs/home/xwang/gene_mutation_prediction_March/ru_model/out_filename_Stats.txt
+--resample_factor 10
+--slide_filter 'test'
+--filter_tile ''
+--Cmap 'KRAS'
+--tiles_size 512
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0f_HeatMap_nClasses.py --image_file /nfs/home/xwang/gene_mutation_prediction_March/r3_LUAD_sorted_partial_test/ --tiles_overlap 0 --output_dir /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/heatmaps_overlay/ --tiles_stats /nfs/home/xwang/gene_mutation_prediction_March/ru_model/out_filename_Stats.txt --resample_factor 10 --slide_filter 'test' --filter_tile '' --Cmap 'KRAS' --tiles_size 512
+"""
+
+#results
+"""
+
+"""
+
+
+# 2. ROC curve
+
+# input
+"""
+cd /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/ROC_curves/
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py 
+--file_stats /nfs/home/xwang/gene_mutation_prediction_March/ru_model/out_filename_Stats.txt
+--output_dir /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/ROC_curves/
+--labels_names /nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt 
+
+nohup python /nfs/home/xwang/DeepPATH/DeepPATH_code/03_postprocessing/0h_ROC_MultiOutput_BootStrap.py --file_stats /nfs/home/xwang/gene_mutation_prediction_March/ru_model/out_filename_Stats.txt --output_dir /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/ROC_curves/ --labels_names /nfs/home/xwang/gene_mutation_prediction_March/labelref_r3.txt 
+
+# summarize all AUC per slide (average probability) for class 1: 
+ls -tr /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/ROC_curves/out2_roc_data_AvPb_c1a*  | sed -e 's/k\/out2_roc_data_AvPb_c1a/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/ROC_curves/valid_out2_AvPb_AUCs_1.txt
+
+
+
+# summarize all AUC per slide (average probability) for macro average: 
+sls -tr /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/ROC_curves/out2_roc_data_AvPb_macro*  | sed -e 's/k\/out2_roc_data_AvPb_macro_/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/ROC_curves/valid_out2_AvPb_AUCs_macro.txt
+
+
+
+# summarize all AUC per slide (average probability) for micro average: 
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_micro*  | sed -e 's/k\/out2_roc_data_AvPb_micro_/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_micro.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c2*  | sed -e 's/k\/out2_roc_data_AvPb_c2/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_2.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c3*  | sed -e 's/k\/out2_roc_data_AvPb_c3/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_3.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c4*  | sed -e 's/k\/out2_roc_data_AvPb_c4/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_4.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c5*  | sed -e 's/k\/out2_roc_data_AvPb_c5/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_5.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c6*  | sed -e 's/k\/out2_roc_data_AvPb_c6/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_6.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c7*  | sed -e 's/k\/out2_roc_data_AvPb_c7/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_7.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c8*  | sed -e 's/k\/out2_roc_data_AvPb_c8/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_8.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c9*  | sed -e 's/k\/out2_roc_data_AvPb_c9/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_9.txt
+
+ls -tr $OUTPUT_DIR/test_*/out2_roc_data_AvPb_c10*  | sed -e 's/k\/out2_roc_data_AvPb_c10/ /' | sed -e 's/test_/ /' | sed -e 's/_/ /g' | sed -e 's/.txt//'   > $OUTPUT_DIR/valid_out2_AvPb_AUCs_10.txt
+
+"""
+
+# results
+"""
+nohup.out                                                      out2_roc_data_AvPb_c10auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out3_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c10auc_nan_CIs_0.0000_0.0000_t0.000000.txt  out2_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c1auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c2auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c4auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c3auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c4auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c5auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c4auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c5auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c6auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c5auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c6auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c7auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c6auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c7auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c8auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c7auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c8auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_c9auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+out1_roc_data_AvPb_c8auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_c9auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out3_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_AvPb_c9auc_nan_CIs_0.0000_0.0000_t0.000000.txt   out2_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt         out3_roc_data_AvPb_micro_auc_0.2176_CIs_0.1126_0.3353.txt
+out1_roc_data_AvPb_macro_auc_nan_CIs_0.0000_0.0000.txt         out2_roc_data_AvPb_micro_auc_0.2176_CIs_0.1126_0.3353.txt      out3_roc_data_PcSel_c10auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_AvPb_micro_auc_0.2134_CIs_0.2033_0.2239.txt      out2_roc_data_PcSel_c10auc_nan_CIs_0.0000_0.0000.txt           out3_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c10auc_nan_CIs_0.0000_0.0000.txt           out2_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c1auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c2auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c4auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c3auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c4auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c5auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c4auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c5auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c6auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c5auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c6auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c7auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c6auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c7auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c8auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c7auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c8auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_c9auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c8auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_c9auc_nan_CIs_0.0000_0.0000.txt            out3_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt
+out1_roc_data_PcSel_c9auc_nan_CIs_0.0000_0.0000.txt            out2_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt        out3_roc_data_PcSel_micro_auc_0.2897_CIs_0.2148_0.3845.txt
+out1_roc_data_PcSel_macro_auc_nan_CIs_0.0000_0.0000.txt        out2_roc_data_PcSel_micro_auc_0.2897_CIs_0.2148_0.3845.txt     valid_out2_AvPb_AUCs_1.txt
+out1_roc_data_PcSel_micro_auc_0.4450_CIs_0.4426_0.4472.txt     out3_perPatientStats.txt                                       valid_out2_AvPb_AUCs_macro.txt
+out2_perSlideStats.txt                                         out3_roc_data_AvPb_c10auc_nan_CIs_0.0000_0.0000_t0.000000.txt
+"""
+
+
+#3. probability distribution (mutation analysis)
+
+# input
+"""
+cd /nfs/home/xwang/gene_mutation_prediction_March/analyze_outcome/probability_distribution_mutation_analysis/
+
+ls 
+"""
+
+# results
+"""
+
+"""
+
+
+#*---------------------------------------------------------------------------------------------
